@@ -34,6 +34,8 @@ class MainActivity : AppCompatActivity() {
 
 //        val inputField = findViewById<EditText>(R.id.dataEditText)
         val contactsButton = findViewById<Button>(R.id.contactsButton)
+        val yourDataButton = findViewById<Button>(R.id.dataButton)
+
         val displayText = findViewById<TextView>(R.id.dataTextView)
         val logoutButton = findViewById<Button>(R.id.logoutButton)
 
@@ -55,14 +57,16 @@ class MainActivity : AppCompatActivity() {
             db.collection("users").document(it).get()
                 .addOnSuccessListener { document ->
                     val user = document.toObject(User::class.java)
-                    displayText.text = "Zalogowany: ${user?.nick}, email: ${user?.mail}"
+                    displayText.text = "Hi ${user?.nick}!"
                 }
         }
 
         contactsButton.setOnClickListener {
             startActivity(Intent(this, ContactActivity::class.java))
         }
-
+        yourDataButton.setOnClickListener {
+            startActivity(Intent(this, YourDataActivity::class.java))
+        }
         logoutButton.setOnClickListener {
             auth.signOut()
             startActivity(Intent(this, LoginActivity::class.java))

@@ -16,6 +16,7 @@ import com.example.testapplication.models.ContactPerson
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import android.util.Log
+import android.widget.ImageButton
 
 class ContactActivity : AppCompatActivity() {
 
@@ -39,17 +40,16 @@ class ContactActivity : AppCompatActivity() {
             finish()
         }
 
-        val backButton = findViewById<Button>(R.id.backButton)
-        val addContactButton = findViewById<Button>(R.id.addContactButton)
+        val backArrowButton = findViewById<ImageButton>(R.id.backButton)
+        val addContactButton = findViewById<ImageButton>(R.id.addContactButton)
         recyclerView = findViewById(R.id.contactRecyclerView)
 
         adapter = ContactAdapter(contacts)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
-        backButton.setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+        backArrowButton.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
         }
 
         addContactButton.setOnClickListener {
