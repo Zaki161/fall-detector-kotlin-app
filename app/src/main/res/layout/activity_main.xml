@@ -1,0 +1,71 @@
+<!--activity_main-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:padding="16dp"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+<!--    <EditText-->
+<!--        android:id="@+id/dataEditText"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:hint="Wprowadź dane do zapisu"/>-->
+<!--    <TextView-->
+<!--        android:id="@+id/dataTextView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Dane użytkownika zostaną tutaj wyświetlone"/>-->
+
+    <TextView
+        android:id="@+id/dataTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:text="Hi [Nick]!"
+        android:textColor="#000000"
+        android:textSize="36sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/contactsButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your contacts"
+        android:background="@drawable/btn_r"
+        android:backgroundTint="#2A9D8F"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Przycisk alarmów -->
+    <Button
+        android:id="@+id/alarmsButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Alarms"
+        android:background="@drawable/btn_r"
+        android:backgroundTint="#E9C46A"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Przycisk danych użytkownika -->
+    <Button
+        android:id="@+id/dataButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your data"
+        android:background="@drawable/btn_r"
+        android:backgroundTint="#F4A261"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"/>
+
+
+    <Button
+        android:id="@+id/logoutButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Wyloguj się" />
+</LinearLayout>
+
+
+
