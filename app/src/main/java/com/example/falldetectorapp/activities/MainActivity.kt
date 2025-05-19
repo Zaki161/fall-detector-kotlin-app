@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
 //        val inputField = findViewById<EditText>(R.id.dataEditText)
         val contactsButton = findViewById<Button>(R.id.contactsButton)
         val yourDataButton = findViewById<Button>(R.id.dataButton)
+        val alarmsButton: Button = findViewById(R.id.alarmsButton)
 
         val displayText = findViewById<TextView>(R.id.dataTextView)
         val logoutButton = findViewById<Button>(R.id.logoutButton)
@@ -66,6 +67,9 @@ class MainActivity : AppCompatActivity() {
         }
         yourDataButton.setOnClickListener {
             startActivity(Intent(this, YourDataActivity::class.java))
+        }
+        alarmsButton.setOnClickListener {
+            startActivity(Intent(this, AlarmsActivity::class.java))
         }
         logoutButton.setOnClickListener {
             auth.signOut()
