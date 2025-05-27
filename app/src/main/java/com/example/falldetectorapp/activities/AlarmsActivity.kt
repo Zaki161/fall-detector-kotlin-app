@@ -6,6 +6,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -13,10 +14,7 @@ import com.example.falldetectorapp.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Timer
-import com.example.testapplication.models.SensorsData
-//import com.example.testapplication.models.User
 import kotlin.concurrent.timer
-
 
 class AlarmsActivity : AppCompatActivity(), SensorEventListener {
 
@@ -31,6 +29,7 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
 
     private lateinit var accText: TextView
     private lateinit var gyroText: TextView
+    private lateinit var statusText: TextView
     private lateinit var backButton: ImageButton
 
     private var accX = ""
@@ -40,16 +39,21 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
     private var gyroY = ""
     private var gyroZ = ""
 
+//    TESTY
+    private var simulateSensorData = true // <-- Zmienna sterująca symulacją
+    private var fakeSensorTimer: Timer? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_alarms)
 
         accText = findViewById(R.id.accText)
         gyroText = findViewById(R.id.gyroText)
+        statusText = findViewById(R.id.statusText)
         backButton = findViewById(R.id.backButton)
 
         backButton.setOnClickListener {
-            finish() // lub: startActivity(Intent(this, MainActivity::class.java))
+            finish()
         }
 
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
@@ -59,25 +63,74 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onResume() {
         super.onResume()
-        accelerometer?.also {
-            sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+        // TESTY
+        if (!simulateSensorData) {
+            accelerometer?.also {
+                sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+            }
+
         }
         gyroscope?.also {
             sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
         }
-        timer = timer(period = 10_000) { // co 10 sekund
-            val tenSecondsAgo = System.currentTimeMillis() - 10_000
+
+        // Co 10 sek – usuwa stare dane
+        // Co 5 sek – usuwa stare dane
+        timer = timer(period = 10_000) {
+//            val tenSecondsAgo = System.currentTimeMillis() - 5_000
+            val currentUserId = auth.currentUser?.uid ?: return@timer
 
             db.collection("sensors")
-                .whereLessThan("timestamp", tenSecondsAgo)
+//                .whereLessThan("timestamp", tenSecondsAgo)
+                .whereEqualTo("userId", currentUserId)
                 .get()
                 .addOnSuccessListener { documents ->
-                    for (doc in documents) {
-                        db.collection("sensors").document(doc.id).delete()
+                    if (documents.isEmpty) {
+                        runOnUiThread {
+                            statusText.text = "Brak starych danych do usunięcia"
+                        }
+                    } else {
+                        for (doc in documents) {
+                            val docRef = db.collection("sensors").document(doc.id)
+                            docRef.get().addOnSuccessListener { snapshot ->
+                                val userId = snapshot.getString("userId")
+                                val currentUserId = auth.currentUser?.uid
+
+                                if (userId == currentUserId) {
+                                    docRef.delete()
+                                        .addOnSuccessListener {
+                                            runOnUiThread {
+                                                statusText.text = "Usunięto: ${doc.id}"
+                                            }
+                                            Log.d("AlarmsActivity", "Usunięto dokument ${doc.id}")
+                                        }
+                                        .addOnFailureListener { e ->
+                                            runOnUiThread {
+                                                statusText.text = "Błąd usuwania: ${e.message}"
+                                            }
+                                            Log.e("AlarmsActivity", "Błąd usuwania: ${e.message}", e)
+                                        }
+                                } else {
+                                    runOnUiThread {
+                                        statusText.text = "Brak uprawnień do usunięcia: ${doc.id}"
+                                    }
+                                    Log.w("AlarmsActivity", "Próba usunięcia cudzych danych: ${doc.id}")
+                                }
+                            }
+                        }
                     }
                 }
+                .addOnFailureListener { e ->
+                    runOnUiThread {
+                        statusText.text = "Błąd pobierania JILjil danych: ${e.message}"
+
+                    }
+                    Log.e("AlarmsActivity", "Błąd pobierania dokumentów: ${e.localizedMessage}", e)
+                }
         }
-        saveTimer = timer(period = 1000) {
+
+        // Co 1 sek – zapisuje nowe dane
+        saveTimer = timer(period = 500) {
             val userId = auth.currentUser?.uid ?: return@timer
             val sensorDataId = db.collection("sensors").document().id
 
@@ -95,8 +148,22 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
 
             db.collection("sensors")
                 .add(sensorData)
-                .addOnSuccessListener { /* optional */ }
-                .addOnFailureListener { e -> e.printStackTrace() }
+                .addOnSuccessListener {
+                    runOnUiThread {
+                        statusText.text = "Zapisano: $sensorDataId"
+                    }
+                    Log.d("AlarmsActivity", "Dodano dokument: $sensorDataId")
+                }
+                .addOnFailureListener { e ->
+                    runOnUiThread {
+                        statusText.text = "Błąd zapisu: ${e.message}"
+                    }
+                    Log.e("AlarmsActivity", "Błąd zapisu: ${e.message}", e)
+                }
+        }
+        // TESTY
+        if (simulateSensorData) {
+            startFakeSensorData()
         }
     }
 
@@ -105,6 +172,7 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
         sensorManager.unregisterListener(this)
         timer?.cancel()
         saveTimer?.cancel()
+        fakeSensorTimer?.cancel() // TESTY
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
@@ -116,14 +184,12 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
                     accZ = it.values[2].toString()
                     accText.text = "Akcelerometr:\nX: $accX\nY: $accY\nZ: $accZ"
 
-                    // Wektorowe przyspieszenie
                     val magnitude = Math.sqrt(
                         (it.values[0] * it.values[0] +
                                 it.values[1] * it.values[1] +
                                 it.values[2] * it.values[2]).toDouble()
                     )
-
-                    if (magnitude > 25) { // wartość progowa – dopasuj według testów
+                    if (magnitude > 25) {
                         startActivity(Intent(this, AccidentActivity::class.java))
                     }
                 }
@@ -136,6 +202,34 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
             }
         }
     }
+    private fun startFakeSensorData() {
+        fakeSensorTimer = timer(period = 500) {
+            if (!simulateSensorData) return@timer
+
+            val fakeAccX = (-2..2).random() + Math.random()
+            val fakeAccY = (-2..2).random() + Math.random()
+            val fakeAccZ = (8..11).random() + Math.random() // grawitacja + ruch
+
+            accX = String.format("%.2f", fakeAccX)
+            accY = String.format("%.2f", fakeAccY)
+            accZ = String.format("%.2f", fakeAccZ)
+
+            val magnitude = Math.sqrt(
+                fakeAccX * fakeAccX + fakeAccY * fakeAccY + fakeAccZ * fakeAccZ
+            )
+
+            runOnUiThread {
+                accText.text = "Akcelerometr (symulacja):\nX: $accX\nY: $accY\nZ: $accZ"
+            }
+
+            if (magnitude > 12) {
+                startActivity(Intent(this@AlarmsActivity, AccidentActivity::class.java))
+            }
+        }
+    }
+
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 }
+
+

@@ -1,3 +1,7 @@
+/*
+Dodawanie/ Aktualizowanie danych uzytkownika
+ */
+
 package com.example.falldetectorapp.activities
 import android.os.Bundle
 import android.widget.Button

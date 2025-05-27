@@ -1,3 +1,6 @@
+/*
+Strona glowna po zalogowaniu !!! */
+
 package com.example.falldetectorapp.activities
 
 import android.content.Intent

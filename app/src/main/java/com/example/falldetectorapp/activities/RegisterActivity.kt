@@ -1,3 +1,7 @@
+/*
+Rejestracja uzytkownika
+ */
+
 package com.example.falldetectorapp.activities
 
 import android.content.Intent
