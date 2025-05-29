@@ -40,7 +40,7 @@
         <activity android:name=".activities.ContactActivity" />
         <activity android:name=".activities.YourDataActivity" />
         <activity android:name=".activities.AlarmsActivity" />
-
+        <activity android:name=".activities.AccidentActivity" />
 
     </application>
 

@@ -43,6 +43,7 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
     private var simulateSensorData = true // <-- Zmienna sterująca symulacją
     private var fakeSensorTimer: Timer? = null
 
+    private var isAccidentActivityRunning = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_alarms)
@@ -63,6 +64,8 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onResume() {
         super.onResume()
+        isAccidentActivityRunning = false
+
         // TESTY
         if (!simulateSensorData) {
             accelerometer?.also {
@@ -94,7 +97,7 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
                             val docRef = db.collection("sensors").document(doc.id)
                             docRef.get().addOnSuccessListener { snapshot ->
                                 val userId = snapshot.getString("userId")
-                                val currentUserId = auth.currentUser?.uid
+//                                val currentUserId = auth.currentUser?.uid
 
                                 if (userId == currentUserId) {
                                     docRef.delete()
@@ -130,7 +133,7 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
         }
 
         // Co 1 sek – zapisuje nowe dane
-        saveTimer = timer(period = 500) {
+        saveTimer = timer(period = 1000) {
             val userId = auth.currentUser?.uid ?: return@timer
             val sensorDataId = db.collection("sensors").document().id
 
@@ -190,7 +193,8 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
                                 it.values[2] * it.values[2]).toDouble()
                     )
                     if (magnitude > 25) {
-                        startActivity(Intent(this, AccidentActivity::class.java))
+                        launchAccidentActivity()
+//                        startActivity(Intent(this, AccidentActivity::class.java))
                     }
                 }
                 Sensor.TYPE_GYROSCOPE -> {
@@ -202,8 +206,14 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
             }
         }
     }
+    private fun launchAccidentActivity() {
+        if (!isAccidentActivityRunning) {
+            isAccidentActivityRunning = true
+            startActivity(Intent(this, AccidentActivity::class.java))
+        }
+    }
     private fun startFakeSensorData() {
-        fakeSensorTimer = timer(period = 500) {
+        fakeSensorTimer = timer(period = 1000) {
             if (!simulateSensorData) return@timer
 
             val fakeAccX = (-2..2).random() + Math.random()
@@ -222,8 +232,10 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
                 accText.text = "Akcelerometr (symulacja):\nX: $accX\nY: $accY\nZ: $accZ"
             }
 
-            if (magnitude > 12) {
-                startActivity(Intent(this@AlarmsActivity, AccidentActivity::class.java))
+            if (magnitude > 12 && !isAccidentActivityRunning) {
+                runOnUiThread {
+                    launchAccidentActivity()
+                }
             }
         }
     }
