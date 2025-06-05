@@ -6,12 +6,9 @@ package com.example.falldetectorapp.activities
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.falldetectorapp.R
-import com.example.falldetectorapp.activities.LoginActivity
-import com.example.falldetectorapp.activities.ContactActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.testapplication.models.User
