@@ -1,3 +1,5 @@
+
+
 package com.example.falldetectorapp.activities
 
 import android.content.Intent
@@ -44,6 +46,7 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
     private var fakeSensorTimer: Timer? = null
 
     private var isAccidentActivityRunning = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_alarms)
@@ -80,11 +83,11 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
         // Co 10 sek – usuwa stare dane
         // Co 5 sek – usuwa stare dane
         timer = timer(period = 10_000) {
-//            val tenSecondsAgo = System.currentTimeMillis() - 5_000
+            val tenSecondsAgo = System.currentTimeMillis() - 5_000
             val currentUserId = auth.currentUser?.uid ?: return@timer
 
             db.collection("sensors")
-//                .whereLessThan("timestamp", tenSecondsAgo)
+                .whereLessThan("timestamp", tenSecondsAgo)
                 .whereEqualTo("userId", currentUserId)
                 .get()
                 .addOnSuccessListener { documents ->

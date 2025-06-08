@@ -1,5 +1,5 @@
 /*
-Strona glowna po zalogowaniu !!! */
+Strona glowna po zalogowaniu przez SENIORa!!! */
 
 package com.example.falldetectorapp.activities
 
@@ -9,9 +9,10 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.falldetectorapp.R
+import com.example.falldetectorapp.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.example.testapplication.models.User
+//import com.example.models.User
 
 class MainActivity : AppCompatActivity() {
 
@@ -69,7 +70,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, YourDataActivity::class.java))
         }
         alarmsButton.setOnClickListener {
-            startActivity(Intent(this, AlarmsActivity::class.java))
+            startActivity(Intent(this, AlarmsActivityML::class.java))
         }
         logoutButton.setOnClickListener {
             auth.signOut()

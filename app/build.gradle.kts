@@ -72,6 +72,6 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.cardview:cardview:1.0.0")
-    implementation ("com.microsoft.onnxruntime:onnxruntime-android:1.16.3")
-
+//    implementation ("com.microsoft.onnxruntime:onnxruntime-android:1.16.3")
+    implementation ("com.microsoft.onnxruntime:onnxruntime-android:1.18.0")
 }

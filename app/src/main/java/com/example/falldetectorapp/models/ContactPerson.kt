@@ -1,4 +1,4 @@
-package com.example.testapplication.models
+package com.example.falldetectorapp.models
 
 data class ContactPerson(
     val id: String = "",

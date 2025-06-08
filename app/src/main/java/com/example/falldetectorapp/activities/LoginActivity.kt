@@ -1,5 +1,5 @@
 /*
-Logowanie
+Logowanie analogicznie do rol
  */
 package com.example.falldetectorapp.activities
 
@@ -11,6 +11,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.falldetectorapp.activities.MainActivity
 import com.example.falldetectorapp.activities.RegisterActivity
+import com.example.falldetectorapp.activities.SupervisorActivity
+import com.google.firebase.firestore.FirebaseFirestore
 
 import com.google.firebase.auth.FirebaseAuth
 import com.example.falldetectorapp.R
@@ -22,9 +24,20 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        if (FirebaseAuth.getInstance().currentUser != null) {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser != null) {
+            val uid = currentUser.uid
+            val db = FirebaseFirestore.getInstance()
+
+            db.collection("users").document(uid).get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val isSenior = document.getBoolean("senior") ?: true
+                        val targetActivity = if (isSenior) MainActivity::class.java else SupervisorActivity::class.java
+                        startActivity(Intent(this, targetActivity))
+                        finish()
+                    }
+                }
         }
     }
 
@@ -43,14 +56,39 @@ class LoginActivity : AppCompatActivity() {
             val email = emailField.text.toString()
             val password = passwordField.text.toString()
 
+            if (email.isBlank() || password.isBlank()) {
+                Toast.makeText(this, "Wypełnij wszystkie pola", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        Toast.makeText(this,"Success", Toast.LENGTH_SHORT).show()
-                        startActivity(Intent(this, MainActivity::class.java))
-                        finish()
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val uid = auth.currentUser?.uid ?: return@addOnCompleteListener
+                        val db = FirebaseFirestore.getInstance()
+
+                        db.collection("users").document(uid).get()
+                            .addOnSuccessListener { document ->
+                                if (document.exists()) {
+                                    val isSenior = document.getBoolean("senior") ?: true // domyślnie senior
+
+                                    val targetActivity = if (isSenior) {
+                                        MainActivity::class.java
+                                    } else {
+                                        SupervisorActivity::class.java
+                                    }
+
+                                    startActivity(Intent(this, targetActivity))
+                                    finish()
+                                } else {
+                                    Toast.makeText(this, "Nie znaleziono danych użytkownika", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(this, "Błąd pobierania danych", Toast.LENGTH_SHORT).show()
+                            }
                     } else {
-                        Toast.makeText(this, "Login failed", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Logowanie nie powiodło się", Toast.LENGTH_SHORT).show()
                     }
                 }
         }

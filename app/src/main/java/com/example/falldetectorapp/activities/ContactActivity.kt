@@ -1,5 +1,9 @@
 /*
-dodawanie kontaktow */
+dodawanie kontaktow ( dodajemy Supervisor do Senioa )
+Uwaga: jeszce nie skonczone
+*/
+
+
 
 package com.example.falldetectorapp.activities
 
@@ -15,7 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.falldetectorapp.R
 import com.example.falldetectorapp.adapters.ContactAdapter
-import com.example.testapplication.models.ContactPerson
+import com.example.falldetectorapp.models.ContactPerson
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import android.util.Log

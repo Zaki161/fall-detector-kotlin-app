@@ -27,6 +27,26 @@
         android:hint="Hasło"
         android:inputType="textPassword"/>
 
+    <RadioGroup
+        android:id="@+id/roleRadioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
+
+        <RadioButton
+            android:id="@+id/seniorRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Senior" />
+
+        <RadioButton
+            android:id="@+id/caregiverRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Opiekun" />
+    </RadioGroup>
+
     <Button
         android:id="@+id/registerButton"
         android:layout_width="match_parent"
@@ -38,4 +58,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Masz konto? Zaloguj się"/>
+
+
+
 </LinearLayout>

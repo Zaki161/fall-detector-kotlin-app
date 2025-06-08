@@ -1,4 +1,4 @@
-package com.example.testapplication.models
+package com.example.falldetectorapp.models
 
 data class SensorsData (
     val id: String = "",
