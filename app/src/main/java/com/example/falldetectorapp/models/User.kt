@@ -9,6 +9,8 @@ data class User(
     val senior: Boolean = true,// domyślnie senior
 //    val isSenior: Boolean = true // domyślnie senior
     val seniorToken: String? = null,
-    val supervising: List<String> = listOf()
+    val fcmToken: String = "",
+    val supervising: List<String> = listOf(),
+    val supervisedBy: List<String> = listOf() // dla seniora: lista uid opiekunów
 
 )

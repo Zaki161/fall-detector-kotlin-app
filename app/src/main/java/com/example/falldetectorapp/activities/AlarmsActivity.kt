@@ -2,6 +2,7 @@
 
 package com.example.falldetectorapp.activities
 
+import android.app.VoiceInteractor
 import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -17,6 +18,16 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Timer
 import kotlin.concurrent.timer
+
+import com.google.gson.Gson
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.Response
+import java.io.IOException
 
 class AlarmsActivity : AppCompatActivity(), SensorEventListener {
 
@@ -196,6 +207,7 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
                                 it.values[2] * it.values[2]).toDouble()
                     )
                     if (magnitude > 25) {
+                        sendPushNotificationToCaretaker()
                         launchAccidentActivity()
 //                        startActivity(Intent(this, AccidentActivity::class.java))
                     }
@@ -242,7 +254,64 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
             }
         }
     }
+    private fun sendPushNotificationToCaretaker() {
+        val currentUser = FirebaseAuth.getInstance().currentUser ?: return
 
+        // Pobierz seniora (bieżącego użytkownika)
+        db.collection("users").document(currentUser.uid).get()
+            .addOnSuccessListener { seniorDoc ->
+
+                val supervisors = seniorDoc.get("supervisors") as? List<String> ?: emptyList()
+
+                if (supervisors.isEmpty()) {
+                    Log.w("FCM", "Senior nie ma przypisanych opiekunów")
+                    return@addOnSuccessListener
+                }
+
+                // Pobierz tokeny FCM opiekunów i wyślij powiadomienie
+                for (supervisorUid in supervisors) {
+                    db.collection("users").document(supervisorUid).get()
+                        .addOnSuccessListener { supervisorDoc ->
+                            val fcmToken = supervisorDoc.getString("fcmToken")
+                            if (!fcmToken.isNullOrEmpty()) {
+                                val notificationData = mapOf(
+                                    "to" to fcmToken,
+                                    "notification" to mapOf(
+                                        "title" to "Wykryto upadek!",
+                                        "body" to "Twój podopieczny może potrzebować pomocy."
+                                    )
+                                )
+                                sendFCMRequest(notificationData)
+                            }
+                        }
+                }
+            }
+    }
+    private fun sendFCMRequest(notificationData: Map<String, Any>) {
+        val fcmServerKey = "AAAAXXX:XXXXXXXXXXXXXXXXX" // zamień na prawdziwy klucz serwera FCM
+
+        val client = OkHttpClient()
+        val json = Gson().toJson(notificationData)
+
+        val body = RequestBody.create("application/json".toMediaType(), json)
+
+        val request =Request.Builder()
+            .url("https://fcm.googleapis.com/fcm/send")
+            .post(body)
+            .addHeader("Authorization", "key=$fcmServerKey")
+            .addHeader("Content-Type", "application/json")
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("FCM", "Błąd wysyłania: ${e.message}")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                Log.d("FCM", "Wysłano powiadomienie: ${response.body?.string()}")
+            }
+        })
+    }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 }

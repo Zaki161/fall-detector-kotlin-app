@@ -12,6 +12,8 @@ import com.example.falldetectorapp.R
 import com.example.falldetectorapp.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
+
 //import com.example.models.User
 
 class MainActivity : AppCompatActivity() {
@@ -43,6 +45,11 @@ class MainActivity : AppCompatActivity() {
 
         val uid = auth.currentUser?.uid
 
+        FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@addOnSuccessListener
+            FirebaseFirestore.getInstance().collection("users").document(uid)
+                .update("fcmToken", token)
+        }
 //        saveButton.setOnClickListener {
 //            val text = inputField.text.toString()
 //            val data = hashMapOf("note" to text)

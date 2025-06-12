@@ -37,6 +37,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 }
 
@@ -52,6 +53,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.messaging.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -67,7 +69,10 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1") // do parsowania JSON jeśli trzeba
     implementation("com.google.firebase:firebase-auth-ktx:22.3.0")
     implementation("com.google.firebase:firebase-firestore-ktx:24.10.2")
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
 
+    // Gson (do serializacji JSON)
+    implementation("com.google.code.gson:gson:2.9.0")
 
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")

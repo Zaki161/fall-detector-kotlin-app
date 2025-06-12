@@ -1,20 +1,13 @@
-/*
-Rejestracja uzytkownika
- */
-
 package com.example.falldetectorapp.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.FirebaseAuth
-import com.example.falldetectorapp.R
 import android.util.Log
-import android.widget.RadioGroup
+import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import com.example.falldetectorapp.R
 import com.example.falldetectorapp.models.User
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class RegisterActivity : AppCompatActivity() {
@@ -29,18 +22,17 @@ class RegisterActivity : AppCompatActivity() {
 
         val emailField = findViewById<EditText>(R.id.emailEditText)
         val passwordField = findViewById<EditText>(R.id.passwordEditText)
-        val nickField= findViewById<EditText>(R.id.nickEditText)
-        val phoneField= findViewById<EditText>(R.id.phoneEditText)
+        val nickField = findViewById<EditText>(R.id.nickEditText)
+        val phoneField = findViewById<EditText>(R.id.phoneEditText)
         val registerButton = findViewById<Button>(R.id.registerButton)
         val loginRedirect = findViewById<Button>(R.id.goToLoginButton)
         val roleGroup = findViewById<RadioGroup>(R.id.roleRadioGroup)
 
-
         registerButton.setOnClickListener {
-            val email = emailField.text.toString()
+            val email = emailField.text.toString().trim()
             val password = passwordField.text.toString()
-            val nick =nickField.text.toString()
-            val phone =phoneField.text.toString()
+            val nick = nickField.text.toString().trim()
+            val phone = phoneField.text.toString().trim()
             val selectedRoleId = roleGroup.checkedRadioButtonId
             val senior = selectedRoleId == R.id.seniorRadioButton
 
@@ -48,37 +40,47 @@ class RegisterActivity : AppCompatActivity() {
                 Toast.makeText(this, "Wybierz rolę użytkownika", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+
             if (email.isBlank() || password.isBlank() || nick.isBlank() || phone.isBlank()) {
                 Toast.makeText(this, "Wypełnij wszystkie pola", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener {
-                    if (it.isSuccessful) {
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
                         val uid = auth.currentUser?.uid ?: return@addOnCompleteListener
-//                        val nick= "Jan Kowalski" // TODO: zamień na input z UI
-//                        val phone = "123456789" // TODO: zamień na input z UI
 
-                        val user = User(uid = uid, mail = email, nick = nick, phone = phone, senior = senior)
+                        val seniorToken = if (senior) generateToken() else null
+
+                        val user = User(
+                            uid = uid,
+                            mail = email,
+                            nick = nick,
+                            phone = phone,
+                            password = password,
+                            senior = senior,
+                            seniorToken = seniorToken,
+                            supervising = listOf()
+                        )
 
                         val db = FirebaseFirestore.getInstance()
                         db.collection("users").document(uid).set(user)
                             .addOnSuccessListener {
                                 val targetActivity = if (senior) {
-                                    MainActivity::class.java // część dla seniora
+                                    MainActivity::class.java
                                 } else {
-                                    SupervisorActivity::class.java // część dla opiekuna (stwórz taką aktywność)
+                                    SupervisorActivity::class.java
                                 }
                                 startActivity(Intent(this, targetActivity))
                                 finish()
                             }
-                            .addOnFailureListener {
-                                Toast.makeText(this, "Błąd zapisu danych", Toast.LENGTH_SHORT).show()
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this, "Błąd zapisu danych: ${e.message}", Toast.LENGTH_SHORT).show()
                             }
                     } else {
-                        Log.e("REGISTRATION", "Registration failed", it.exception)
-                        Toast.makeText(this, "Registration failed: ${it.exception?.message}", Toast.LENGTH_LONG).show()
+                        Log.e("REGISTER", "Registration failed", task.exception)
+                        Toast.makeText(this, "Rejestracja nieudana: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                     }
                 }
         }
@@ -86,7 +88,12 @@ class RegisterActivity : AppCompatActivity() {
         loginRedirect.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
         }
+    }
 
-
+    private fun generateToken(length: Int = 6): String {
+        val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        return (1..length)
+            .map { chars.random() }
+            .joinToString("")
     }
 }
