@@ -56,3 +56,7 @@ class SupervisorActivity : AppCompatActivity() {
         }
     }
 }
+
+//        contactsButton.setOnClickListener {
+//            startActivity(Intent(this, ContactActivity::class.java))
+//        }

@@ -42,7 +42,7 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
     private var gyroZ = ""
 
 //    TESTY
-    private var simulateSensorData = true // <-- Zmienna sterująca symulacją
+    private var simulateSensorData = false // <-- Zmienna sterująca symulacją
     private var fakeSensorTimer: Timer? = null
 
     private var isAccidentActivityRunning = false

@@ -266,8 +266,9 @@ class AlarmsActivityML : AppCompatActivity(), SensorEventListener {
             )
 
             val prediction = rfClassifier.predict(features)
+            Log.d("ML", "Wynik predykcji: $prediction")
 
-            if (prediction >= 0.5 && !isAccidentActivityRunning) {
+            if (prediction == 1.0f && !isAccidentActivityRunning) {
                 runOnUiThread {
                     launchAccidentActivity()
                 }

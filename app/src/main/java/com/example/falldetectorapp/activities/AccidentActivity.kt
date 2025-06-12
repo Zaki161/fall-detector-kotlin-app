@@ -48,6 +48,13 @@ class AccidentActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private var accidentId: String? = null
 
+
+    private val handler = Handler(Looper.getMainLooper())
+    private val dismissRunnable = Runnable {
+        finish() // automatyczne zamknięcie po 5 sekundach
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_accident)
@@ -56,6 +63,7 @@ class AccidentActivity : AppCompatActivity() {
         accidentId = intent.getStringExtra("accidentId")
 
         rejectButton.setOnClickListener {
+            handler.removeCallbacks(dismissRunnable) // zatrzymaj auto-zamykanie
             accidentId?.let {
                 db.collection("accident_history").document(it)
                     .update("wasRejected", true)
@@ -65,10 +73,20 @@ class AccidentActivity : AppCompatActivity() {
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(this, "Błąd odrzucenia: ${e.message}", Toast.LENGTH_SHORT).show()
+                        finish()
                     }
             } ?: run {
                 Toast.makeText(this, "Brak accidentId", Toast.LENGTH_SHORT).show()
+                finish()
             }
         }
+
+        // Ustaw timer na automatyczne zamknięcie
+        handler.postDelayed(dismissRunnable, 5000)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacks(dismissRunnable)
     }
 }

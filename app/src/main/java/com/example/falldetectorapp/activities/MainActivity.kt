@@ -63,15 +63,18 @@ class MainActivity : AppCompatActivity() {
                 }
         }
 
-        contactsButton.setOnClickListener {
-            startActivity(Intent(this, ContactActivity::class.java))
-        }
+//        contactsButton.setOnClickListener {
+//            startActivity(Intent(this, ContactActivity::class.java))
+//        }
         yourDataButton.setOnClickListener {
             startActivity(Intent(this, YourDataActivity::class.java))
         }
         alarmsButton.setOnClickListener {
-            startActivity(Intent(this, AlarmsActivityML::class.java))
+            startActivity(Intent(this, AlarmsActivity::class.java))
         }
+//        alarmsButton.setOnClickListener {
+//            startActivity(Intent(this, AlarmsActivityML::class.java))
+//        }
         logoutButton.setOnClickListener {
             auth.signOut()
             startActivity(Intent(this, LoginActivity::class.java))

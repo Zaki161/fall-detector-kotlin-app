@@ -6,7 +6,9 @@ data class User(
     val mail: String = "",
     val phone: String = "",
     val password: String = "",
-    val senior: Boolean = true // domyślnie senior
+    val senior: Boolean = true,// domyślnie senior
 //    val isSenior: Boolean = true // domyślnie senior
+    val seniorToken: String? = null,
+    val supervising: List<String> = listOf()
 
 )

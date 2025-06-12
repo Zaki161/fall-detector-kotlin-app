@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.falldetectorapp.R
-import com.example.testapplication.models.ContactPerson
+import com.example.falldetectorapp.models.ContactPerson
 
 class ContactAdapter(private val contacts: List<ContactPerson>) :
     RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
