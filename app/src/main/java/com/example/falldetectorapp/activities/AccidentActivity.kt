@@ -8,6 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.falldetectorapp.R
+import com.example.falldetectorapp.fcm.FCMSender
 import com.google.firebase.firestore.FirebaseFirestore
 
 class AccidentActivity : AppCompatActivity() {
@@ -18,10 +19,45 @@ class AccidentActivity : AppCompatActivity() {
 
     private val handler = Handler(Looper.getMainLooper())
     private val dismissRunnable = Runnable {
-        accidentId?.let {
-            db.collection("accident_history").document(it)
+        accidentId?.let { accidentId ->
+            db.collection("accident_history").document(accidentId)
                 .update("wasAutoClosed", true)
+
+            // Pobierz UID seniora
+            db.collection("accident_history").document(accidentId).get()
+                .addOnSuccessListener { doc ->
+                    val seniorUid = doc.getString("userId") ?: return@addOnSuccessListener
+
+                    // Pobierz dokument seniora
+                    db.collection("users").document(seniorUid).get()
+                        .addOnSuccessListener { userDoc ->
+                            val supervisedBy = userDoc.get("supervisedBy") as? List<String> ?: return@addOnSuccessListener
+
+                            // Dla każdego opiekuna
+                            for (supervisorUid in supervisedBy) {
+                                db.collection("users").document(supervisorUid).get()
+                                    .addOnSuccessListener { supDoc ->
+                                        val token = supDoc.getString("fcmToken")
+                                        val nick = userDoc.getString("nick") ?: "senior"
+
+                                        if (!token.isNullOrBlank()) {
+                                            FCMSender.sendNotification(
+                                                this,
+                                                token,
+                                                "TEST",
+                                                "To jest testowa wiadomość"
+                                            ) { success, message ->
+                                                runOnUiThread {
+                                                    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+                                                }
+                                            }
+                                        }
+                                    }
+                            }
+                        }
+                }
         }
+
         finish()
     }
 

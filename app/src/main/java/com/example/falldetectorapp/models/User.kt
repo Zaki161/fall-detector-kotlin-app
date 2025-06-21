@@ -11,6 +11,10 @@ data class User(
     val seniorToken: String? = null,
     val fcmToken: String = "",
     val supervising: List<String> = listOf(),
-    val supervisedBy: List<String> = listOf() // dla seniora: lista uid opiekunów
+    val supervisedBy: List<String> = listOf(), // dla seniora: lista uid opiekunów
+
+    var height: Int = 0,  // wzrost w cm
+    var age: Int = 0,
+    var weight: Int = 0   // waga w kg
 
 )

@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.falldetectorapp.R
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.auth.FirebaseAuth
-import com.example.falldetectorapp.models.UserData
+import com.example.falldetectorapp.models.User
 
 
 class YourDataActivity : AppCompatActivity() {
@@ -26,7 +26,7 @@ class YourDataActivity : AppCompatActivity() {
     private val auth = FirebaseAuth.getInstance()
 
     // Przykład: można przechowywać dane lokalnie lub w Firestore. Na początek lokalnie:
-    private var userData = UserData()
+    private var userData = User()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +56,7 @@ class YourDataActivity : AppCompatActivity() {
                 .get()
                 .addOnSuccessListener { document ->
                     if (document.exists()) {
-                        userData = document.toObject(UserData::class.java) ?: UserData()
+                        userData = document.toObject(User::class.java) ?: User()
                         heightEditText.setText(userData.height.toString())
                         ageEditText.setText(userData.age.toString())
                         weightEditText.setText(userData.weight.toString())

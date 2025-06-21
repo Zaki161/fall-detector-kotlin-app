@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.falldetectorapp.R
 import com.google.firebase.auth.FirebaseAuth
@@ -48,7 +49,7 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
     private var gyroZ = 0f
 
     private var isAccidentActivityRunning = false
-    private var simulateSensorData = false // do testów
+    private var simulateSensorData = true // do testów
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -259,11 +260,15 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
                             val fcmToken = supervisorDoc.getString("fcmToken") ?: return@addOnSuccessListener
                             // Wywołujemy FCMSender zamiast własnej metody HTTP
                             FCMSender.sendNotification(
-                                this@AlarmsActivity,
+                                this,
                                 fcmToken,
-                                "Wykryto upadek!",
-                                "Twój podopieczny może potrzebować pomocy."
-                            )
+                                "TEST",
+                                "To jest testowa wiadomość"
+                            ) { success, message ->
+                                runOnUiThread {
+                                    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+                                }
+                            }
                         }
                 }
             }

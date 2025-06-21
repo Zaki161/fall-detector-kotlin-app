@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.falldetectorapp.R
 import com.example.falldetectorapp.adapters.SeniorAdapter
+import com.example.falldetectorapp.fcm.FCMSender
 import com.example.falldetectorapp.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -51,6 +52,7 @@ class SupervisorActivity : AppCompatActivity() {
         }
 
         FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+            Log.d("FCM", "Token urządzenia: $token")
             val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@addOnSuccessListener
             db.collection("users").document(uid)
                 .update("fcmToken", token)
@@ -58,6 +60,54 @@ class SupervisorActivity : AppCompatActivity() {
 
         addSeniorButton.setOnClickListener {
             showAddSeniorDialog()
+        }
+
+
+        val testNotificationButton = findViewById<Button>(R.id.testNotificationButton)
+        Log.d("SupervisorActivity", "testNotificationButton: $testNotificationButton")
+        testNotificationButton.setOnClickListener {
+            Log.d("SupervisorActivity", "Clicked testNotificationButton, currentUser=$currentUser")
+
+            // Zakładamy, że currentUser.supervising zawiera token seniora
+            if (currentUser.supervising.isNotEmpty()) {
+                val token = currentUser.supervising.first()
+
+                db.collection("users")
+                    .whereEqualTo("seniorToken", token)
+                    .get()
+                    .addOnSuccessListener { docs ->
+                        val senior = docs.firstOrNull()?.toObject(User::class.java)
+                        if (senior != null) {
+                            val fcmTokens = senior.supervisedBy
+                            for (supervisorUid in fcmTokens) {
+                                db.collection("users").document(supervisorUid).get()
+                                    .addOnSuccessListener { supervisorDoc ->
+                                        val supervisor = supervisorDoc.toObject(User::class.java)
+                                        val token = supervisor?.fcmToken
+                                        if (!token.isNullOrEmpty()) {
+                                            Log.d("SupervisorActivity", "Wysyłam powiadomienie do tokena: $token")
+                                            FCMSender.sendNotification(
+                                                this,
+                                                token,
+                                                "TEST",
+                                                "To jest testowa wiadomość"
+                                            ) { success, message ->
+                                                Log.d("SupervisorActivity", "Wynik wysyłki: success=$success, message=$message")
+                                                runOnUiThread {
+                                                    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+                                                }
+                                            }
+                                            Toast.makeText(this, "Wysłano testowe powiadomienie", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            Toast.makeText(this, "Brak tokena FCM", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                            }
+                        }
+                    }
+            } else {
+                Toast.makeText(this, "Brak przypisanego seniora", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

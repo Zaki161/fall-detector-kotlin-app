@@ -35,7 +35,16 @@
         android:padding="4dp"
         android:clipToPadding="false"
         android:scrollbars="vertical" />
-
+    <Button
+        android:id="@+id/testNotificationButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Testuj powiadomienie"
+        android:textSize="20sp"
+        android:backgroundTint="#4CAF50"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"/>
     <Button
         android:id="@+id/logoutButton"
         android:layout_width="match_parent"
@@ -45,5 +54,8 @@
         android:backgroundTint="#E53935"
         android:textColor="#FFFFFF"
         android:layout_marginTop="16dp"/>
+
+
+
 <!--        android:cornerRadius="12dp" -->
 </LinearLayout>

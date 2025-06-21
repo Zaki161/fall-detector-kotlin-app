@@ -18,29 +18,35 @@ object FCMSender {
     private const val TAG = "FCMSender"
     private const val FCM_SCOPE = "https://www.googleapis.com/auth/firebase.messaging"
     private const val TOKEN_URL = "https://oauth2.googleapis.com/token"
-    private const val FCM_SEND_URL = "https://fcm.googleapis.com/v1/projects/falldetectorapp-c926f/messages:send"
 
     fun sendNotification(
         context: Context,
         targetToken: String,
         title: String,
-        body: String
+        body: String,
+        onResult: (Boolean, String) -> Unit
     ) {
-        val serviceAccount = context.assets.open("falldetectorapp-c926f-a33259b239e3.json")
-            .bufferedReader().use { it.readText() }
+        try {
+            val serviceAccount = context.assets.open("falldetectorapp-c926f-a33259b239e3.json")
+                .bufferedReader().use { it.readText() }
 
-        val jsonObject = JSONObject(serviceAccount)
-        val clientEmail = jsonObject.getString("client_email")
-        val privateKey = jsonObject.getString("private_key")
-        val projectId = jsonObject.getString("project_id")
+            val jsonObject = JSONObject(serviceAccount)
+            val clientEmail = jsonObject.getString("client_email")
+            val privateKey = jsonObject.getString("private_key")
+            val projectId = jsonObject.getString("project_id")
 
-        val jwt = generateJwt(clientEmail, privateKey)
-        getAccessToken(jwt) { accessToken ->
-            if (accessToken != null) {
-                postToFcm(accessToken, targetToken, title, body, projectId)
-            } else {
-                Log.e(TAG, "Access token is null.")
+            val jwt = generateJwt(clientEmail, privateKey)
+
+            getAccessToken(jwt) { accessToken ->
+                if (accessToken != null) {
+                    postToFcm(accessToken, targetToken, title, body, projectId, onResult)
+                } else {
+                    onResult(false, "Nie udało się uzyskać tokena dostępu.")
+                }
             }
+        } catch (e: Exception) {
+            Log.e(TAG, "Błąd podczas przygotowania danych", e)
+            onResult(false, "Błąd podczas przygotowania danych: ${e.message}")
         }
     }
 
@@ -88,14 +94,23 @@ object FCMSender {
             }
 
             override fun onResponse(call: Call, response: Response) {
-                response.use {
-                    if (it.isSuccessful) {
-                        val res = JSONObject(it.body!!.string())
-                        callback(res.getString("access_token"))
-                    } else {
-                        Log.e(TAG, "Access token error: ${it.code}")
+                val responseBodyString = response.body?.string()
+                Log.d(TAG, "FCM HTTP ${response.code} BODY: $responseBodyString")
+                response.close() // Zamknij ręcznie, nie używaj `use {}` jeśli już czytasz body!
+
+                if (response.isSuccessful && responseBodyString != null) {
+                    try {
+                        val res = JSONObject(responseBodyString)
+                        val token = res.getString("access_token")
+                        Log.d(TAG, "Access token retrieved successfully.")
+                        callback(token)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "JSON parsing error: ${e.message}")
                         callback(null)
                     }
+                } else {
+                    Log.e(TAG, "Access token error: ${response.code}, $responseBodyString")
+                    callback(null)
                 }
             }
         })
@@ -106,19 +121,24 @@ object FCMSender {
         targetToken: String,
         title: String,
         body: String,
-        projectId: String
+        projectId: String,
+        onResult: (Boolean, String) -> Unit
     ) {
         val client = OkHttpClient()
         val url = "https://fcm.googleapis.com/v1/projects/$projectId/messages:send"
 
-        val json = JSONObject()
-        json.put("message", JSONObject().apply {
-            put("token", targetToken)
-            put("notification", JSONObject().apply {
-                put("title", title)
-                put("body", body)
+        val json = JSONObject().apply {
+            put("message", JSONObject().apply {
+                put("token", targetToken)
+                put("notification", JSONObject().apply {
+                    put("title", title)
+                    put("body", body)
+                })
             })
-        })
+        }
+
+        Log.d(TAG, "Sending notification to token: $targetToken")
+        Log.d(TAG, "Payload: $json")
 
         val request = Request.Builder()
             .url(url)
@@ -128,11 +148,19 @@ object FCMSender {
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e(TAG, "Send failed", e)
+                Log.e(TAG, "FCM send failed", e)
+                onResult(false, "Nie udało się wysłać powiadomienia: ${e.message}")
             }
 
             override fun onResponse(call: Call, response: Response) {
-                Log.i(TAG, "FCM response: ${response.code}, ${response.body?.string()}")
+                val responseBody = response.body?.string()
+                if (response.isSuccessful) {
+                    Log.i(TAG, "FCM response: ${response.code}, $responseBody")
+                    onResult(true, "Powiadomienie wysłane pomyślnie.")
+                } else {
+                    Log.e(TAG, "FCM error: ${response.code}, $responseBody")
+                    onResult(false, "Błąd FCM: ${response.code} ${responseBody}")
+                }
             }
         })
     }
