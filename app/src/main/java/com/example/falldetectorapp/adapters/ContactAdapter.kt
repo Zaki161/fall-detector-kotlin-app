@@ -6,9 +6,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.falldetectorapp.R
-import com.example.falldetectorapp.models.ContactPerson
+import com.example.falldetectorapp.models.User
 
-class ContactAdapter(private val contacts: List<ContactPerson>) :
+class ContactAdapter(private val contacts: List<User>) :
     RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
 
     class ContactViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -25,9 +25,9 @@ class ContactAdapter(private val contacts: List<ContactPerson>) :
 
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
         val contact = contacts[position]
-        holder.nameText.text = contact.name
-        holder.emailText.text = contact.email
-        holder.phoneText.text = contact.phoneNumber
+        holder.nameText.text = contact.nick
+        holder.emailText.text = contact.mail
+        holder.phoneText.text = contact.phone
     }
 
     override fun getItemCount() = contacts.size

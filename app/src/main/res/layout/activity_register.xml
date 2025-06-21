@@ -30,7 +30,7 @@
             android:background="@drawable/rounded_edittext"
             android:layout_marginBottom="20dp"
             android:textColor="#000000"
-            android:hintTextColor="#888888"/>
+            android:textColorHint="#888888"/>
 
         <EditText
             android:id="@+id/phoneEditText"
@@ -43,7 +43,7 @@
             android:inputType="phone"
             android:layout_marginBottom="20dp"
             android:textColor="#000000"
-            android:hintTextColor="#888888"/>
+            android:textColorHint="#888888"/>
 
         <EditText
             android:id="@+id/emailEditText"
@@ -56,7 +56,7 @@
             android:inputType="textEmailAddress"
             android:layout_marginBottom="20dp"
             android:textColor="#000000"
-            android:hintTextColor="#888888"/>
+            android:textColorHint="#888888"/>
 
         <EditText
             android:id="@+id/passwordEditText"
@@ -69,7 +69,7 @@
             android:inputType="textPassword"
             android:layout_marginBottom="32dp"
             android:textColor="#000000"
-            android:hintTextColor="#888888"/>
+            android:textColorHint="#888888"/>
 
         <RadioGroup
             android:id="@+id/roleRadioGroup"
@@ -108,8 +108,8 @@
             android:textSize="22sp"
             android:textColor="#FFFFFF"
             android:backgroundTint="#3F51B5"
-            android:layout_marginBottom="16dp"
-            android:cornerRadius="12dp"/>
+            android:layout_marginBottom="16dp"/>
+<!--            android:cornerRadius="12dp"/>-->
 
         <Button
             android:id="@+id/goToLoginButton"
@@ -118,8 +118,8 @@
             android:text="Masz konto? Zaloguj się"
             android:textSize="20sp"
             android:textColor="#3F51B5"
-            android:backgroundTint="#E8EAF6"
-            android:cornerRadius="12dp"/>
+            android:backgroundTint="#E8EAF6"/>
+<!--            android:cornerRadius="12dp"/>-->
 
     </LinearLayout>
 </ScrollView>

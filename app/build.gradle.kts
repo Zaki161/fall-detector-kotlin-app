@@ -69,7 +69,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1") // do parsowania JSON jeśli trzeba
     implementation("com.google.firebase:firebase-auth-ktx:22.3.0")
     implementation("com.google.firebase:firebase-firestore-ktx:24.10.2")
-    implementation("com.squareup.okhttp3:okhttp:4.9.3")
+//    implementation("com.squareup.okhttp3:okhttp:4.9.3")
 
     // Gson (do serializacji JSON)
     implementation("com.google.code.gson:gson:2.9.0")
@@ -79,4 +79,7 @@ dependencies {
     implementation("androidx.cardview:cardview:1.0.0")
 //    implementation ("com.microsoft.onnxruntime:onnxruntime-android:1.16.3")
     implementation ("com.microsoft.onnxruntime:onnxruntime-android:1.18.0")
+
+    implementation ("com.auth0:java-jwt:4.4.0")
+    implementation ("com.squareup.okhttp3:okhttp:4.10.0")
 }

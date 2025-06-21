@@ -1,54 +1,40 @@
-/*
-dodawanie kontaktow ( dodajemy Supervisor do Senioa )
-Uwaga: jeszce nie skonczone
-*/
-
-
-
 package com.example.falldetectorapp.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.LinearLayout
+import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.falldetectorapp.R
 import com.example.falldetectorapp.adapters.ContactAdapter
-import com.example.falldetectorapp.models.ContactPerson
+import com.example.falldetectorapp.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import android.util.Log
-import android.widget.ImageButton
 
 class ContactActivity : AppCompatActivity() {
 
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
     private lateinit var recyclerView: RecyclerView
-    private val contacts = mutableListOf<ContactPerson>()
+    private val contacts = mutableListOf<User>()
     private lateinit var adapter: ContactAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_contacts)
-        val user = FirebaseAuth.getInstance().currentUser
 
-        if (user != null) {
-            val uid = user.uid
-            // używaj uid wszędzie gdzie potrzebujesz
-        } else {
-            // użytkownik NIE jest zalogowany → przekieruj do LoginActivity
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
+            return
         }
 
         val backArrowButton = findViewById<ImageButton>(R.id.backButton)
-        val addContactButton = findViewById<ImageButton>(R.id.addContactButton)
+//        val tokenTextView = findViewById<TextView>(R.id.TokenTextView)f
         recyclerView = findViewById(R.id.contactRecyclerView)
 
         adapter = ContactAdapter(contacts)
@@ -59,85 +45,39 @@ class ContactActivity : AppCompatActivity() {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        addContactButton.setOnClickListener {
-            showAddContactDialog()
-        }
-
         loadContacts()
     }
 
     private fun loadContacts() {
         val uid = auth.currentUser?.uid ?: return
-        db.collection("contacts")
-            .whereEqualTo("userId", uid)
-            .get()
-            .addOnSuccessListener { result ->
-                contacts.clear()
-                for (document in result) {
-                    val contact = document.toObject(ContactPerson::class.java)
-                    contacts.add(contact)
+        val tokenTextView = findViewById<TextView>(R.id.TokenTextView)
+
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                val currentUser = document.toObject(User::class.java) ?: return@addOnSuccessListener
+                val token = currentUser.seniorToken ?: return@addOnSuccessListener
+
+                runOnUiThread {
+                    tokenTextView.text = "Twój token: $token"
                 }
-                adapter.notifyDataSetChanged()
+
+                db.collection("users")
+                    .whereArrayContains("supervising", token)
+                    .get()
+                    .addOnSuccessListener { result ->
+                        contacts.clear()
+                        for (doc in result) {
+                            val supervisor = doc.toObject(User::class.java)
+                            contacts.add(supervisor)
+                        }
+                        adapter.notifyDataSetChanged()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(this, "Błąd ładowania kontaktów", Toast.LENGTH_SHORT).show()
+                    }
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Błąd pobierania kontaktów", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Błąd ładowania danych użytkownika", Toast.LENGTH_SHORT).show()
             }
-    }
-
-    private fun showAddContactDialog() {
-        val dialogLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(32, 32, 32, 32)
-        }
-
-        val nameInput = EditText(this).apply { hint = "Imię i nazwisko" }
-        val emailInput = EditText(this).apply { hint = "Email" }
-        val phoneInput = EditText(this).apply { hint = "Numer telefonu" }
-
-        dialogLayout.addView(nameInput)
-        dialogLayout.addView(emailInput)
-        dialogLayout.addView(phoneInput)
-
-        AlertDialog.Builder(this)
-            .setTitle("Dodaj osobę kontaktową")
-            .setView(dialogLayout)
-            .setPositiveButton("Dodaj") { _, _ ->
-                val currentUser = FirebaseAuth.getInstance().currentUser
-                if (currentUser == null) {
-                    Toast.makeText(this, "Użytkownik niezalogowany", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
-                }
-                val uid = currentUser.uid
-                val name = nameInput.text.toString()
-                val email = emailInput.text.toString()
-                val phone = phoneInput.text.toString()
-
-                if (name.isBlank() || email.isBlank() || phone.isBlank()) {
-                    Toast.makeText(this, "Wszystkie pola są wymagane", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
-                }
-
-                val contactId = db.collection("contacts").document().id
-                val contact = ContactPerson(
-                    id = contactId,
-                    userId = uid,
-                    name = name,
-                    email = email,
-                    phoneNumber = phone
-                )
-
-                db.collection("contacts").document(contactId).set(contact)
-                    .addOnSuccessListener {
-                        Log.d("FIREBASE", "Kontakt dodany!")
-                        loadContacts()
-                        Toast.makeText(this, "Kontakt dodany!", Toast.LENGTH_SHORT).show()
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("FIREBASE", "Błąd zapisu: ${e.message}")
-                        Toast.makeText(this, "Błąd zapisu", Toast.LENGTH_SHORT).show()
-                    }
-            }
-            .setNegativeButton("Anuluj", null)
-            .show()
     }
 }

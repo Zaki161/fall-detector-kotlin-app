@@ -10,7 +10,8 @@
         android:id="@+id/backButton"
         android:layout_width="70dp"
         android:layout_height="70dp"
-        android:layout_margin="5dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="16dp"
         android:background="@drawable/back"
         android:src="@drawable/arrow_back"
         android:scaleType="center"
@@ -18,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:contentDescription="Powrót" />
 
-<!--    <TextView-->
+    <!--    <TextView-->
 <!--        android:id="@+id/dataTextView"-->
 <!--        android:layout_width="wrap_content"-->
 <!--        android:layout_height="wrap_content"-->
@@ -31,25 +32,39 @@
 <!--        app:layout_constraintStart_toStartOf="parent"-->
 <!--        app:layout_constraintTop_toTopOf="parent" />-->
 
+
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/contactRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/backButton"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/TokenTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="16dp"/>
 
-    <ImageButton
-        android:id="@+id/addContactButton"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_margin="16dp"
-        android:background="@drawable/back"
-        android:backgroundTint="#4CAF50"
-        android:src="@drawable/plus"
-        android:scaleType="center"
+    <TextView
+        android:id="@+id/TokenTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:text="Token!"
+        android:textColor="#024741"
+        android:textSize="20sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+<!--    <ImageButton-->
+<!--        android:id="@+id/addContactButton"-->
+<!--        android:layout_width="70dp"-->
+<!--        android:layout_height="70dp"-->
+<!--        android:layout_margin="16dp"-->
+<!--        android:background="@drawable/back"-->
+<!--        android:backgroundTint="#4CAF50"-->
+<!--        android:src="@drawable/plus"-->
+<!--        android:scaleType="center"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"/>-->
 </androidx.constraintlayout.widget.ConstraintLayout>

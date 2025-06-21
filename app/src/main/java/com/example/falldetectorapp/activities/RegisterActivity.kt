@@ -9,10 +9,12 @@ import com.example.falldetectorapp.R
 import com.example.falldetectorapp.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +36,7 @@ class RegisterActivity : AppCompatActivity() {
             val nick = nickField.text.toString().trim()
             val phone = phoneField.text.toString().trim()
             val selectedRoleId = roleGroup.checkedRadioButtonId
-            val senior = selectedRoleId == R.id.seniorRadioButton
+            val isSenior = selectedRoleId == R.id.seniorRadioButton
 
             if (selectedRoleId == -1) {
                 Toast.makeText(this, "Wybierz rolę użytkownika", Toast.LENGTH_SHORT).show()
@@ -51,33 +53,44 @@ class RegisterActivity : AppCompatActivity() {
                     if (task.isSuccessful) {
                         val uid = auth.currentUser?.uid ?: return@addOnCompleteListener
 
-                        val seniorToken = if (senior) generateToken() else null
+                        FirebaseMessaging.getInstance().token.addOnCompleteListener { tokenTask ->
+                            if (!tokenTask.isSuccessful) {
+                                Toast.makeText(this, "Nie udało się pobrać FCM tokenu", Toast.LENGTH_SHORT).show()
+                                return@addOnCompleteListener
+                            }
 
-                        val user = User(
-                            uid = uid,
-                            mail = email,
-                            nick = nick,
-                            phone = phone,
-                            password = password,
-                            senior = senior,
-                            seniorToken = seniorToken,
-                            supervising = listOf()
-                        )
+                            val fcmToken = tokenTask.result ?: ""
 
-                        val db = FirebaseFirestore.getInstance()
-                        db.collection("users").document(uid).set(user)
-                            .addOnSuccessListener {
-                                val targetActivity = if (senior) {
-                                    MainActivity::class.java
-                                } else {
-                                    SupervisorActivity::class.java
+                            val seniorToken = if (isSenior) generateToken() else null
+
+                            val user = User(
+                                uid = uid,
+                                nick = nick,
+                                mail = email,
+                                phone = phone,
+                                password = password,
+                                senior = isSenior,
+                                seniorToken = seniorToken,
+                                fcmToken = fcmToken,
+                                supervising = listOf(),
+                                supervisedBy = listOf()
+                            )
+
+                            db.collection("users").document(uid).set(user)
+                                .addOnSuccessListener {
+                                    val targetActivity = if (isSenior) {
+                                        MainActivity::class.java
+                                    } else {
+                                        SupervisorActivity::class.java
+                                    }
+                                    startActivity(Intent(this, targetActivity))
+                                    finish()
                                 }
-                                startActivity(Intent(this, targetActivity))
-                                finish()
-                            }
-                            .addOnFailureListener { e ->
-                                Toast.makeText(this, "Błąd zapisu danych: ${e.message}", Toast.LENGTH_SHORT).show()
-                            }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(this, "Błąd zapisu danych: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                        }
+
                     } else {
                         Log.e("REGISTER", "Registration failed", task.exception)
                         Toast.makeText(this, "Rejestracja nieudana: ${task.exception?.message}", Toast.LENGTH_LONG).show()

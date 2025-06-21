@@ -1,6 +1,3 @@
-/*
-Strona glowna po zalogowaniu przez SENIORa!!! */
-
 package com.example.falldetectorapp.activities
 
 import android.content.Intent
@@ -14,8 +11,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 
-//import com.example.models.User
-
 class MainActivity : AppCompatActivity() {
 
     private val auth = FirebaseAuth.getInstance()
@@ -24,64 +19,47 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val user = FirebaseAuth.getInstance().currentUser
 
-        if (user != null) {
-            val uid = user.uid
-            // używaj uid wszędzie gdzie potrzebujesz
-        } else {
-            // użytkownik NIE jest zalogowany → przekieruj do LoginActivity
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
+            return
         }
 
-//        val inputField = findViewById<EditText>(R.id.dataEditText)
         val contactsButton = findViewById<Button>(R.id.contactsButton)
         val yourDataButton = findViewById<Button>(R.id.dataButton)
-        val alarmsButton: Button = findViewById(R.id.alarmsButton)
-
+        val alarmsButton = findViewById<Button>(R.id.alarmsButton)
         val displayText = findViewById<TextView>(R.id.dataTextView)
         val logoutButton = findViewById<Button>(R.id.logoutButton)
 
-        val uid = auth.currentUser?.uid
-
+        // Aktualizacja tokena FCM
         FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
-            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@addOnSuccessListener
-            FirebaseFirestore.getInstance().collection("users").document(uid)
-                .update("fcmToken", token)
-        }
-//        saveButton.setOnClickListener {
-//            val text = inputField.text.toString()
-//            val data = hashMapOf("note" to text)
-//
-//            uid?.let {
-//                db.collection("users").document(uid).set(data)
-//                    .addOnSuccessListener {
-//                        displayText.text = "Zapisano: $text"
-//                    }
-//            }
-//        }
-
-        uid?.let {
-            db.collection("users").document(it).get()
-                .addOnSuccessListener { document ->
-                    val user = document.toObject(User::class.java)
-                    displayText.text = "Hi ${user?.nick}!"
-                }
+            currentUser.uid.let { uid ->
+                db.collection("users").document(uid)
+                    .update("fcmToken", token)
+            }
         }
 
-//        contactsButton.setOnClickListener {
-//            startActivity(Intent(this, ContactActivity::class.java))
-//        }
+        // Wyświetlenie nicku użytkownika
+        db.collection("users").document(currentUser.uid).get()
+            .addOnSuccessListener { document ->
+                val user = document.toObject(User::class.java)
+                displayText.text = "Hi ${user?.nick}!"
+            }
+
+        contactsButton.setOnClickListener {
+            startActivity(Intent(this, ContactActivity::class.java))
+        }
+
         yourDataButton.setOnClickListener {
             startActivity(Intent(this, YourDataActivity::class.java))
         }
+
         alarmsButton.setOnClickListener {
             startActivity(Intent(this, AlarmsActivity::class.java))
         }
-//        alarmsButton.setOnClickListener {
-//            startActivity(Intent(this, AlarmsActivityML::class.java))
-//        }
+
         logoutButton.setOnClickListener {
             auth.signOut()
             startActivity(Intent(this, LoginActivity::class.java))

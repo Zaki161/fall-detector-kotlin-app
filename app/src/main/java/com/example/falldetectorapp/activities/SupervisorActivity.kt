@@ -49,11 +49,13 @@ class SupervisorActivity : AppCompatActivity() {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
+
         FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
             val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@addOnSuccessListener
-            FirebaseFirestore.getInstance().collection("users").document(uid)
+            db.collection("users").document(uid)
                 .update("fcmToken", token)
         }
+
         addSeniorButton.setOnClickListener {
             showAddSeniorDialog()
         }
@@ -68,7 +70,6 @@ class SupervisorActivity : AppCompatActivity() {
                 if (user != null) {
                     currentUser = user
                     welcomeText.text = "Witaj, ${user.nick}!"
-
                     loadSupervisedSeniors(user.supervising)
                 }
             }
@@ -114,7 +115,6 @@ class SupervisorActivity : AppCompatActivity() {
                     return@setPositiveButton
                 }
 
-                // Sprawdź czy taki senior istnieje
                 db.collection("users")
                     .whereEqualTo("seniorToken", token)
                     .get()
@@ -125,22 +125,29 @@ class SupervisorActivity : AppCompatActivity() {
                         }
 
                         val seniorDoc = query.documents[0]
-                        val seniorToken = seniorDoc.getString("seniorToken")
-                        if (seniorToken == null) {
-                            Toast.makeText(this, "Senior nie ma przypisanego tokena", Toast.LENGTH_SHORT).show()
-                            return@addOnSuccessListener
-                        }
+                        val senior = seniorDoc.toObject(User::class.java) ?: return@addOnSuccessListener
+                        val seniorId = senior.uid
 
-                        // Dodaj token do listy supervising, jeśli nie istnieje
-                        if (!currentUser.supervising.contains(seniorToken)) {
-                            val updatedList = currentUser.supervising + seniorToken
+                        if (!currentUser.supervising.contains(token)) {
+                            val updatedSupervising = currentUser.supervising + token
 
+                            // 1. Update supervisor
                             db.collection("users").document(currentUser.uid)
-                                .update("supervising", updatedList)
+                                .update("supervising", updatedSupervising)
                                 .addOnSuccessListener {
-                                    currentUser = currentUser.copy(supervising = updatedList)
-                                    loadSupervisedSeniors(updatedList)
-                                    Toast.makeText(this, "Senior dodany!", Toast.LENGTH_SHORT).show()
+                                    currentUser = currentUser.copy(supervising = updatedSupervising)
+
+                                    // 2. Update senior
+                                    val updatedSupervisedBy = senior.supervisedBy + currentUser.uid
+                                    db.collection("users").document(seniorId)
+                                        .update("supervisedBy", updatedSupervisedBy)
+                                        .addOnSuccessListener {
+                                            loadSupervisedSeniors(updatedSupervising)
+                                            Toast.makeText(this, "Senior dodany!", Toast.LENGTH_SHORT).show()
+                                        }
+                                        .addOnFailureListener {
+                                            Toast.makeText(this, "Błąd aktualizacji seniora", Toast.LENGTH_SHORT).show()
+                                        }
                                 }
                                 .addOnFailureListener {
                                     Toast.makeText(this, "Błąd aktualizacji opiekuna", Toast.LENGTH_SHORT).show()

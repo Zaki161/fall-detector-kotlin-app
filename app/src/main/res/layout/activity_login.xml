@@ -27,7 +27,7 @@
         android:inputType="textEmailAddress"
         android:layout_marginBottom="20dp"
         android:textColor="#000000"
-        android:hintTextColor="#888888"/>
+        android:textColorHint="#888888"/>
 
     <EditText
         android:id="@+id/passwordEditText"
@@ -40,7 +40,7 @@
         android:inputType="textPassword"
         android:layout_marginBottom="32dp"
         android:textColor="#000000"
-        android:hintTextColor="#888888"/>
+        android:textColorHint="#888888"/>
 
     <Button
         android:id="@+id/loginButton"
@@ -50,8 +50,8 @@
         android:textSize="22sp"
         android:textColor="#FFFFFF"
         android:backgroundTint="#3F51B5"
-        android:layout_marginBottom="16dp"
-        android:cornerRadius="12dp"/>
+        android:layout_marginBottom="16dp"/>
+<!--        android:cornerRadius="12dp"/>-->
 
     <Button
         android:id="@+id/goToRegisterButton"
@@ -60,7 +60,7 @@
         android:text="Zarejestruj się"
         android:textSize="22sp"
         android:textColor="#3F51B5"
-        android:backgroundTint="#E8EAF6"
-        android:cornerRadius="12dp"/>
+        android:backgroundTint="#E8EAF6"/>
+<!--        android:cornerRadius="12dp"/>-->
 
 </LinearLayout>

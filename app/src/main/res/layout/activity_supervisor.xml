@@ -24,8 +24,8 @@
         android:textSize="20sp"
         android:backgroundTint="#3F51B5"
         android:textColor="#FFFFFF"
-        android:layout_marginBottom="16dp"
-        android:cornerRadius="12dp" />
+        android:layout_marginBottom="16dp"/>
+<!--        android:cornerRadius="12dp" -->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/seniorRecyclerView"
@@ -44,6 +44,6 @@
         android:textSize="20sp"
         android:backgroundTint="#E53935"
         android:textColor="#FFFFFF"
-        android:layout_marginTop="16dp"
-        android:cornerRadius="12dp" />
+        android:layout_marginTop="16dp"/>
+<!--        android:cornerRadius="12dp" -->
 </LinearLayout>
