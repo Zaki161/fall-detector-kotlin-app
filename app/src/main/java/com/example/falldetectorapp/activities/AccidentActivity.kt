@@ -44,8 +44,8 @@ class AccidentActivity : AppCompatActivity() {
                                             FCMSender.sendNotification(
                                                 this,
                                                 token,
-                                                "TEST",
-                                                "To jest testowa wiadomość"
+                                                "ALERT",
+                                                "Upadek! Użytkownik $nick upadł, sprawdź to!"
                                             ) { success, message ->
                                                 runOnUiThread {
                                                     Toast.makeText(this, message, Toast.LENGTH_LONG).show()

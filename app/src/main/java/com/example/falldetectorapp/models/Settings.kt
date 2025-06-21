@@ -1,4 +1,5 @@
 package com.example.falldetectorapp.models
+// Model nie jest uzywany
 
 data class Settings(
     val id: String = "",

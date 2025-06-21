@@ -1,3 +1,8 @@
+
+/*
+Rejestracja user, tworzenie tokenow
+ */
+
 package com.example.falldetectorapp.activities
 
 import android.content.Intent
@@ -45,6 +50,10 @@ class RegisterActivity : AppCompatActivity() {
 
             if (email.isBlank() || password.isBlank() || nick.isBlank() || phone.isBlank()) {
                 Toast.makeText(this, "Wypełnij wszystkie pola", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (!phone.matches(Regex("^\\d{9}$"))) {
+                Toast.makeText(this, "Numer telefonu musi mieć dokładnie 9 cyfr", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 

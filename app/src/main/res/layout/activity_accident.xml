@@ -3,11 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#D32F2F">  <!-- Czerwone tło -->
+    android:background="#D32F2F"
+    android:padding="24dp">
 
     <TextView
         android:id="@+id/accidentText"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="WYKRYTO WYPADEK"
         android:textSize="36sp"
@@ -17,17 +18,17 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="80dp"/>
+        android:layout_marginTop="60dp"/>
 
-    <!-- Kółko z X -->
     <FrameLayout
         android:id="@+id/cancelContainer"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:layout_marginTop="100dp"
+        android:layout_width="260dp"
+        android:layout_height="260dp"
+        android:layout_marginTop="60dp"
         app:layout_constraintTop_toBottomOf="@id/accidentText"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        android:elevation="8dp">
 
         <!-- Białe koło -->
         <View
@@ -38,8 +39,8 @@
         <!-- Duży X -->
         <ImageView
             android:id="@+id/cancelIcon"
-            android:layout_width="220dp"
-            android:layout_height="220dp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             android:layout_gravity="center"
             android:src="@android:drawable/ic_delete"
             android:scaleType="fitCenter"/>
@@ -51,13 +52,13 @@
         android:layout_height="wrap_content"
         android:text="ODRZUĆ"
         android:textStyle="bold"
-        android:textSize="20sp"
-        android:textColor="@android:color/black"
-        android:padding="16dp"
+        android:textSize="18sp"
+        android:textColor="#D32F2F"
+        android:background="@drawable/reject_button_bg"
+        android:paddingHorizontal="32dp"
+        android:paddingVertical="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="60dp"/>
-
-
+        android:layout_marginBottom="48dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

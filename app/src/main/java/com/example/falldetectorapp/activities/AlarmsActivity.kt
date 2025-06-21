@@ -185,7 +185,7 @@ class AlarmsActivity : AppCompatActivity(), SensorEventListener {
                     accText.text = "Akcelerometr:\nX: $accX\nY: $accY\nZ: $accZ"
 
                     val magnitude = sqrt(accX * accX + accY * accY + accZ * accZ)
-                    if (magnitude > 12) {
+                    if (magnitude > 15) {
                         sendPushNotificationToCaretaker()
                         launchAccidentActivity()
                     }

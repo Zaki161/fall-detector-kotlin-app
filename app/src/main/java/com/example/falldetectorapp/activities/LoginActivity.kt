@@ -1,5 +1,5 @@
 /*
-Logowanie analogicznie do rol
+Logowanie analogicznie do roli
  */
 package com.example.falldetectorapp.activities
 
