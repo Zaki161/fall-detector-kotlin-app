@@ -1,5 +1,9 @@
 package com.example.falldetectorapp.models
-
+/**
+ * Reprezentuje dane z czujników (akcelerometru i żyroskopu) zebrane w danym momencie.
+ *
+ * Używane do wykrywania upadków.
+ */
 data class SensorsData (
     val id: String = "",
     val userId: String ="",

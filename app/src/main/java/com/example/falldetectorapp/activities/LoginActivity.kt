@@ -1,5 +1,11 @@
-/*
-Logowanie analogicznie do roli
+/**
+ * Aktywność odpowiedzialna za logowanie użytkownika do aplikacji.
+ *
+ * Na podstawie roli użytkownika (senior/opiekun) przekierowuje do odpowiedniej aktywności (`MainActivity` lub `SupervisorActivity`).
+ *
+ * - Jeśli użytkownik jest już zalogowany (`onStart`), pomija logowanie.
+ * - W przypadku powodzenia logowania, pobiera dane użytkownika z Firestore i kieruje dalej.
+ * - Umożliwia też przejście do rejestracji.
  */
 package com.example.falldetectorapp.activities
 
@@ -22,9 +28,11 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
 
+    // Sprawdz czy jest zalogowany
     override fun onStart() {
         super.onStart()
         val currentUser = FirebaseAuth.getInstance().currentUser
+        // Jesli juz zalogowany to przekieruj na dobra strone
         if (currentUser != null) {
             val uid = currentUser.uid
             val db = FirebaseFirestore.getInstance()
@@ -41,6 +49,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    // UI
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)

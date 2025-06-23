@@ -1,5 +1,11 @@
 package com.example.falldetectorapp.activities
-
+/**
+ * Aktywność odpowiedzialna za monitorowanie danych z sensorów (akcelerometr i żyroskop)
+ * oraz wykrywanie potencjalnych upadków przy użyciu modelu uczenia maszynowego (RFClassifier).
+ *
+ * Dane z sensorów są zapisywane do Firestore, a po wykryciu upadku uruchamiana jest
+ * aktywność potwierdzająca (`AccidentActivity`).
+ */
 import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -104,12 +110,12 @@ class AlarmsActivityML : AppCompatActivity(), SensorEventListener {
                         userAge = (document.getLong("age") ?: 25).toFloat()
                         userHeight = (document.getLong("height") ?: 170).toFloat()
                         userWeight = (document.getLong("weight") ?: 70).toFloat()
-                        // Dodaj gender jeśli masz w bazie
+                        // potem gender jeśli w bazie
                     }
                 }
         }
 
-        // Usuwanie dokumentów starszych niż 1 minuta co 10 sekund
+        // Usuwanie dokumentów starszych niż x minuta co y sekund
         timer = timer(period = 30_000) {
             val oneMinuteAgo = System.currentTimeMillis() - 60_000
             val currentUserId = auth.currentUser?.uid ?: return@timer
@@ -185,6 +191,7 @@ class AlarmsActivityML : AppCompatActivity(), SensorEventListener {
                 }
         }
 
+        // symulowane dane ( do testow)
         if (simulateSensorData) {
             startFakeSensorData()
         }

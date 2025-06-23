@@ -1,8 +1,13 @@
-
-/*
-Rejestracja user, tworzenie tokenow
+/**
+ * Aktywność odpowiedzialna za rejestrację użytkownika w aplikacji.
+ * Pozwala na utworzenie konta z podaniem danych takich jak e-mail, hasło, nick, numer telefonu oraz wybór roli (senior/opiekun).
+ *
+ * Po pomyślnej rejestracji:
+ * - Tworzy obiekt użytkownika w Firestore,
+ * - Generuje token FCM dla urządzenia do powiadomień,
+ * - W przypadku seniora generuje dodatkowy token służący do identyfikacji,
+ * - Przekierowuje użytkownika do odpowiedniej aktywności w zależności od roli.
  */
-
 package com.example.falldetectorapp.activities
 
 import android.content.Intent
@@ -52,6 +57,7 @@ class RegisterActivity : AppCompatActivity() {
                 Toast.makeText(this, "Wypełnij wszystkie pola", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            // Numer to tylko cyfry i jest ich 9
             if (!phone.matches(Regex("^\\d{9}$"))) {
                 Toast.makeText(this, "Numer telefonu musi mieć dokładnie 9 cyfr", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -111,6 +117,14 @@ class RegisterActivity : AppCompatActivity() {
             startActivity(Intent(this, LoginActivity::class.java))
         }
     }
+    /**
+     * Generuje losowy token składający się z wielkich liter i cyfr.
+     * Token domyślnie ma długość 6 znaków.
+     * Token ma na celu polaczenie seniora z opiekunem
+     *
+     * @param length długość generowanego tokena (domyślnie 6)
+     * @return wygenerowany token jako String
+     */
 
     private fun generateToken(length: Int = 6): String {
         val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"

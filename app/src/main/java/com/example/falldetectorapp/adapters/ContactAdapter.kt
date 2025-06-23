@@ -8,9 +8,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.falldetectorapp.R
 import com.example.falldetectorapp.models.User
 
+/**
+ * Adapter dla RecyclerView wyświetlający listę kontaktów użytkowników ([User]).
+ *
+ * Wykorzystuje układ `item_contact.xml` do prezentacji danych kontaktowych (imię, e-mail, telefon).
+ *
+ * @param contacts Lista obiektów [User], które mają zostać wyświetlone.
+ */
 class ContactAdapter(private val contacts: List<User>) :
     RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
 
+//    Pojedynczy element
     class ContactViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val nameText: TextView = itemView.findViewById(R.id.contactNameText)
         val emailText: TextView = itemView.findViewById(R.id.contactEmailText)

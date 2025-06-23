@@ -1,5 +1,15 @@
 package com.example.falldetectorapp.activities
-
+/**
+ * `AlarmsActivity` odpowiada za monitorowanie danych z czujników (akcelerometr i żyroskop)
+ * w czasie rzeczywistym w celu wykrywania potencjalnych upadków użytkownika.
+ *
+ * Główne funkcje:
+ * - Rejestruje dane z czujników i zapisuje je do Firestore.
+ * - Symuluje dane dla celów testowych (jeśli `simulateSensorData` = true).
+ * - Wysyła powiadomienie push do opiekuna w przypadku wykrycia upadku.
+ * - Usuwa stare dane z kolekcji `sensors` co 10 sekund.
+ * - Uruchamia `AccidentActivity` po wykryciu upadku.
+ */
 import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent

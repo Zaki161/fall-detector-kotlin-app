@@ -11,6 +11,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 
+/**
+ * Ekran główny aplikacji dla użytkownika typu senior.
+ *
+ * Umożliwia dostęp do kontaktów, danych osobowych, podgladu sensorow oraz obsługuje wylogowanie.
+ * Automatycznie aktualizuje token FCM i wyświetla nick zalogowanego użytkownika.
+ */
 class MainActivity : AppCompatActivity() {
 
     private val auth = FirebaseAuth.getInstance()
@@ -21,6 +27,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val currentUser = auth.currentUser
+        // Jesli nie zalogownay to wroc do logowania
         if (currentUser == null) {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
@@ -33,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         val displayText = findViewById<TextView>(R.id.dataTextView)
         val logoutButton = findViewById<Button>(R.id.logoutButton)
 
-        // Aktualizacja tokena FCM
+        // !!!! Aktualizacja tokena FCM, aby mieć zawsze aktualny identyfikator urządzenia do powiadomień
         FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
             currentUser.uid.let { uid ->
                 db.collection("users").document(uid)
@@ -41,7 +48,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Wyświetlenie nicku użytkownika
+        // Wyświetlenie nicku
         db.collection("users").document(currentUser.uid).get()
             .addOnSuccessListener { document ->
                 val user = document.toObject(User::class.java)

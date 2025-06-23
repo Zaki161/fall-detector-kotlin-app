@@ -1,5 +1,15 @@
 package com.example.falldetectorapp.ml
 
+/**
+ * Klasa odpowiedzialna za wykonywanie predykcji upadków z użyciem modelu Random Forest
+ * wytrenowanego i wyeksportowanego do formatu ONNX.
+ *
+ * Wczytuje model z zasobów aplikacji i wykonuje inferencję przy użyciu biblioteki ONNX Runtime.
+ *
+ * @constructor Tworzy instancję klasy i ładuje model z pliku `model_rf.onnx` znajdującego się w katalogu assets.
+ *
+ * @param context Kontekst aplikacji, wymagany do dostępu do zasobów.
+ */
 import android.content.Context
 import ai.onnxruntime.*
 import java.nio.FloatBuffer

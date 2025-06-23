@@ -1,5 +1,10 @@
 package com.example.falldetectorapp.models
-
+/**
+ * Klasa reprezentująca użytkownika aplikacji.
+ *
+ * Zawiera dane zarówno wprowadzone podczas rejestracji,
+ * jak i edytowalne po zalogowaniu oraz informacje techniczne używane w backendzie.
+ */
 data class User(
     // Dane ustawiane przy rejestracji
     val uid: String = "",
@@ -12,7 +17,7 @@ data class User(
     // utorzone oraz uzywane w backend
     val seniorToken: String? = null,
     val fcmToken: String = "",
-    val supervising: List<String> = listOf(),
+    val supervising: List<String> = listOf(), // Lista uid seniorów, ktorych opiekun pilnuje
     val supervisedBy: List<String> = listOf(), // dla seniora: lista uid opiekunów
 
     // Dane ustawiana po zalogowaniu - edytowalne

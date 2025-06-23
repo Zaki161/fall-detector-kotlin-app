@@ -12,13 +12,26 @@ import java.security.interfaces.RSAPrivateKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.util.*
 import okhttp3.MediaType.Companion.toMediaType
-
+/**
+ * Obiekt odpowiedzialny za wysyłanie powiadomień push do Firebase Cloud Messaging (FCM)
+ * z wykorzystaniem tokena serwisowego oraz biblioteki JWT do podpisywania żądań.
+ *
+ * Implementuje pełny przepływ autoryzacji OAuth 2.0 z JWT i komunikację REST z FCM HTTP v1 API.
+ */
 object FCMSender {
 
     private const val TAG = "FCMSender"
     private const val FCM_SCOPE = "https://www.googleapis.com/auth/firebase.messaging"
     private const val TOKEN_URL = "https://oauth2.googleapis.com/token"
-
+    /**
+     * Wysyła powiadomienie push do określonego urządzenia na podstawie jego tokena FCM.
+     *
+     * @param context Kontekst aplikacji wymagany do odczytania pliku klucza serwisowego.
+     * @param targetToken Token FCM odbiorcy (urządzenia).
+     * @param title Tytuł powiadomienia.
+     * @param body Treść powiadomienia.
+     * @param onResult Callback z wynikiem: `true` gdy sukces, `false` w przypadku błędu.
+     */
     fun sendNotification(
         context: Context,
         targetToken: String,
@@ -49,7 +62,13 @@ object FCMSender {
             onResult(false, "Błąd podczas przygotowania danych: ${e.message}")
         }
     }
-
+    /**
+     * Tworzy i podpisuje token JWT niezbędny do uzyskania tokena dostępu OAuth 2.0.
+     *
+     * @param clientEmail Adres e-mail konta serwisowego.
+     * @param privateKeyPem Prywatny klucz RSA (PEM).
+     * @return Podpisany token JWT.
+     */
     private fun generateJwt(clientEmail: String, privateKeyPem: String): String {
         val now = System.currentTimeMillis()
         val algorithm = Algorithm.RSA256(null, getPrivateKeyFromPem(privateKeyPem))
@@ -62,7 +81,12 @@ object FCMSender {
             .withExpiresAt(Date(now + 3600 * 1000))
             .sign(algorithm)
     }
-
+    /**
+     * Parsuje i dekoduje klucz prywatny RSA z formatu PEM.
+     *
+     * @param pem Tekst w formacie PEM zawierający klucz prywatny.
+     * @return Obiekt `RSAPrivateKey` gotowy do podpisywania JWT.
+     */
     private fun getPrivateKeyFromPem(pem: String): RSAPrivateKey {
         val cleaned = pem
             .replace("-----BEGIN PRIVATE KEY-----", "")
@@ -73,7 +97,12 @@ object FCMSender {
         val kf = KeyFactory.getInstance("RSA")
         return kf.generatePrivate(spec) as RSAPrivateKey
     }
-
+    /**
+     * Wysyła żądanie do Google OAuth 2.0 API w celu uzyskania tokena dostępu na podstawie JWT.
+     *
+     * @param jwt Podpisany token JWT.
+     * @param callback Callback zwracający token dostępu lub `null` w przypadku błędu.
+     */
     private fun getAccessToken(jwt: String, callback: (String?) -> Unit) {
         val client = OkHttpClient()
 
@@ -115,7 +144,16 @@ object FCMSender {
             }
         })
     }
-
+    /**
+     * Wysyła wiadomość push do FCM HTTP v1 API.
+     *
+     * @param accessToken Token dostępu OAuth 2.0.
+     * @param targetToken Token FCM odbiorcy.
+     * @param title Tytuł powiadomienia.
+     * @param body Treść powiadomienia.
+     * @param projectId Identyfikator projektu Firebase.
+     * @param onResult Callback z informacją o sukcesie lub błędzie.
+     */
     private fun postToFcm(
         accessToken: String,
         targetToken: String,

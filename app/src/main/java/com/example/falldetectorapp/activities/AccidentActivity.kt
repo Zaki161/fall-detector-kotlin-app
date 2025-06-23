@@ -11,13 +11,28 @@ import com.example.falldetectorapp.R
 import com.example.falldetectorapp.fcm.FCMSender
 import com.google.firebase.firestore.FirebaseFirestore
 
+/**
+ * Ekran potwierdzający upadek wykryty przez system.
+ *
+ * Użytkownik ma 5 sekund na odrzucenie zgłoszenia, zanim zostanie wysłane powiadomienie
+ * do opiekunów informujące o potencjalnym upadku.
+ */
+
 class AccidentActivity : AppCompatActivity() {
 
     private lateinit var rejectButton: TextView
     private val db = FirebaseFirestore.getInstance()
     private var accidentId: String? = null
 
+    /** Handler odpowiedzialny za opóźnione zamknięcie aktywności. */
     private val handler = Handler(Looper.getMainLooper())
+
+    /**
+     * Runnable, który po 5 sekundach:
+     * - aktualizuje rekord upadku jako autozamknięty,
+     * - pobiera opiekunów użytkownika,
+     * - wysyła im powiadomienie push.
+     */
     private val dismissRunnable = Runnable {
         accidentId?.let { accidentId ->
             db.collection("accident_history").document(accidentId)
@@ -60,7 +75,10 @@ class AccidentActivity : AppCompatActivity() {
 
         finish()
     }
-
+    /**
+     * Inicjalizuje aktywność, pobiera accidentId z intentu i ustawia przycisk odrzucenia.
+     * Jeśli użytkownik nie zareaguje w ciągu 5 sekund, uruchamiany jest `dismissRunnable`.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_accident)
@@ -99,7 +117,9 @@ class AccidentActivity : AppCompatActivity() {
 
         handler.postDelayed(dismissRunnable, 5000)
     }
-
+    /**
+     * Usuwa zaplanowane akcje, gdy aktywność jest niszczona.
+     */
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacks(dismissRunnable)

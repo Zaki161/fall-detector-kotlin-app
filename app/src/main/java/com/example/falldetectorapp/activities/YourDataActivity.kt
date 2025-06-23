@@ -1,5 +1,8 @@
-/*
-Dodawanie/ Aktualizowanie danych uzytkownika
+/**
+ * Aktywność umożliwiająca użytkownikowi dodanie lub aktualizację danych osobowych:
+ * wzrostu, wieku oraz wagi. Dane są przechowywane w Firebase Firestore.
+ *
+ * Widok zawiera formularz z trzema polami oraz przycisk zapisu.
  */
 
 package com.example.falldetectorapp.activities

@@ -16,6 +16,14 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 
+/**
+ * Activity dla opiekuna (supervisora), umożliwiająca:
+ * - przeglądanie przypisanych seniorów,
+ * - dodawanie nowych seniorów za pomocą tokenu,
+ * - testowe wysyłanie powiadomień FCM,
+ * - aktualizację tokena FCM użytkownika,
+ * - wylogowanie.
+ */
 class SupervisorActivity : AppCompatActivity() {
 
     private val auth = FirebaseAuth.getInstance()
@@ -29,6 +37,7 @@ class SupervisorActivity : AppCompatActivity() {
     private lateinit var welcomeText: TextView
 
     private lateinit var currentUser: User
+    // UI, pobranie danych zalogowanego opiekuna oraz przypisanych seniorów.
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +60,7 @@ class SupervisorActivity : AppCompatActivity() {
             finish()
         }
 
+        // Aktualizacja tokena FCM bieżącego urządzenia
         FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
             Log.d("FCM", "Token urządzenia: $token")
             val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@addOnSuccessListener
@@ -63,6 +73,7 @@ class SupervisorActivity : AppCompatActivity() {
         }
 
 
+        //    testowe powiadomienie FCM do przypisanego seniora i jego opiekunów.
         val testNotificationButton = findViewById<Button>(R.id.testNotificationButton)
         Log.d("SupervisorActivity", "testNotificationButton: $testNotificationButton")
         testNotificationButton.setOnClickListener {
@@ -110,6 +121,7 @@ class SupervisorActivity : AppCompatActivity() {
             }
         }
     }
+    //* Wczytuje dane aktualnie zalogowanego opiekuna z Firestore.
 
     private fun loadSupervisorData() {
         val uid = auth.currentUser?.uid ?: return
@@ -127,7 +139,7 @@ class SupervisorActivity : AppCompatActivity() {
                 welcomeText.text = "Błąd ładowania danych."
             }
     }
-
+//Ładuje listę seniorów przypisanych do opiekuna na podstawie ich tokenów.
     private fun loadSupervisedSeniors(tokens: List<String>) {
         if (tokens.isEmpty()) {
             seniors.clear()
@@ -150,7 +162,7 @@ class SupervisorActivity : AppCompatActivity() {
                 Toast.makeText(this, "Błąd ładowania seniorów", Toast.LENGTH_SHORT).show()
             }
     }
-
+    //Pokazuje okno umożliwiający opiekunowi dodanie seniora po tokenie.
     private fun showAddSeniorDialog() {
         val input = EditText(this).apply { hint = "Wprowadź token seniora" }
 

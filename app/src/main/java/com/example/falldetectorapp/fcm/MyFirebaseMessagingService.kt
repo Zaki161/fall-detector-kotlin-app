@@ -14,11 +14,19 @@ import com.example.falldetectorapp.R
 import com.example.falldetectorapp.activities.MainActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-
+/**
+ * Serwis Firebase Messaging odpowiedzialny za odbiór wiadomości push (FCM)
+ * i wyświetlanie lokalnych powiadomień użytkownikowi.
+ */
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     private val CHANNEL_ID = "fall_alerts"
-
+    /**
+     * Metoda wywoływana przy odebraniu nowej wiadomości FCM.
+     * Wyciąga dane z wiadomości i pokazuje lokalne powiadomienie.
+     *
+     * @param remoteMessage Obiekt reprezentujący odebraną wiadomość FCM.
+     */
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         Log.d("FCM", "Odebrano wiadomość: ${remoteMessage.data}")
         Log.d("FCM", "Notification: ${remoteMessage.notification?.title} - ${remoteMessage.notification?.body}")
@@ -28,12 +36,22 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         showNotification(title, body)
     }
-
+    /**
+     * Metoda wywoływana, gdy generowany jest nowy token FCM dla urządzenia.
+     * Można tu np. przesłać token do backendu.
+     *
+     * @param token Nowy token FCM.
+     */
     override fun onNewToken(token: String) {
         Log.d("FCM", "Nowy token: $token")
         // Kiedys zapis token do bazy
     }
-
+    /**
+     * Tworzy i wyświetla lokalne powiadomienie systemowe.
+     *
+     * @param title Tytuł powiadomienia.
+     * @param message Treść powiadomienia.
+     */
     private fun showNotification(title: String, message: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "Powiadomienia o upadkach"

@@ -1,5 +1,10 @@
 package com.example.falldetectorapp.activities
-
+/**
+ * Aktywność `ContactActivity` wyświetla listę kontaktów (opiekunów) przypisanych do seniora.
+ * Dane pobierane są z Firestore na podstawie tokena seniora (`seniorToken`).
+ *
+ * Użytkownik może zobaczyć swój unikalny token oraz listę opiekunów, którzy go nadzorują.
+ */
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
@@ -18,9 +23,9 @@ class ContactActivity : AppCompatActivity() {
 
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
-    private lateinit var recyclerView: RecyclerView
-    private val contacts = mutableListOf<User>()
-    private lateinit var adapter: ContactAdapter
+    private lateinit var recyclerView: RecyclerView // widok listy
+    private val contacts = mutableListOf<User>() // lista kontaktow
+    private lateinit var adapter: ContactAdapter // adapter do wyswietlania listy
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +52,12 @@ class ContactActivity : AppCompatActivity() {
 
         loadContacts()
     }
-
+    /**
+     * Ładuje dane kontaktowe z Firestore:
+     * - pobiera token seniora aktualnie zalogowanego użytkownika,
+     * - wyszukuje opiekunów, którzy mają przypisany ten token w swoim polu `supervising`,
+     * - wyświetla ich na liście w RecyclerView.
+     */
     private fun loadContacts() {
         val uid = auth.currentUser?.uid ?: return
         val tokenTextView = findViewById<TextView>(R.id.TokenTextView)

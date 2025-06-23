@@ -5,9 +5,16 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.falldetectorapp.databinding.ItemSeniorBinding
 import com.example.falldetectorapp.models.User
-
+/**
+ * Adapter do wyświetlania listy seniorów w RecyclerView.
+ *
+ * Używa widoku `item_senior.xml` i wiąże dane z obiektów [User] z widokiem.
+ *
+ * @property seniors Lista obiektów [User] reprezentujących seniorów.
+ */
 class SeniorAdapter(private val seniors: List<User>) : RecyclerView.Adapter<SeniorAdapter.SeniorViewHolder>() {
 
+//    Pojedynczy element
     class SeniorViewHolder(val binding: ItemSeniorBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SeniorViewHolder {
