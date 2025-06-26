@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         alarmsButton.setOnClickListener {
-            startActivity(Intent(this, AlarmsActivity::class.java))
+            startActivity(Intent(this, AlarmsActivityML::class.java))
         }
 
         logoutButton.setOnClickListener {
